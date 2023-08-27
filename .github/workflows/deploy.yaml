@@ -42,7 +42,6 @@ jobs:
     needs: [oidc]
     name: Deploy to App Runner
     runs-on: ubuntu-latest
-    timeout-minutes: 30
     steps:
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v2
@@ -63,3 +62,4 @@ jobs:
           image: ${{ secrets.IMAGE_URI }}
           access-role-arn: ${{ secrets.APPRUNNER_ROLE }}
           port: ${{ env.PORT }}
+          wait-for-service-stability-seconds: 600
