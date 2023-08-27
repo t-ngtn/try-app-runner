@@ -42,6 +42,7 @@ jobs:
   deploy:
     needs: [oidc]
     name: Deploy to App Runner
+    runs-on: ubuntu-latest
     steps:
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v2
