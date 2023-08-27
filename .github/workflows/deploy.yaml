@@ -38,27 +38,27 @@ jobs:
         run: |
           docker build -t ${{ env.TAG_NAME }} .
           docker push ${{ secrets.IMAGE_URI }}
-  
+
   deploy:
     needs: [oidc]
     name: Deploy to App Runner
     steps:
-    - name: Configure AWS
+      - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-    
-    - name: Login to ECR
+
+      - name: Login to ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-    
-    - name: Deploy to App Runner
+
+      - name: Deploy to App Runner
         id: deploy-to-app-runner
         uses: awslabs/amazon-app-runner-deploy@main
         with:
           service: ${{ env.SERVICE_NAME }}
           region: ${{ env.AWS_REGION }}
           image: ${{ secrets.IMAGE_URI }}
-          access-role-arn:  ${{ secrets.AWS_ROLE_ARN }}
-          port:  ${{ env.PORT }}
+          access-role-arn: ${{ secrets.AWS_ROLE_ARN }}
+          port: ${{ env.PORT }}
