@@ -17,5 +17,5 @@ func main() {
 }
 
 func helloAppRunner(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, AWS App Runner!!!")
+	return c.String(http.StatusOK, "Hello, AWS App Runner!! from GitHub Actions")
 }
