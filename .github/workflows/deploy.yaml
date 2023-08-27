@@ -60,5 +60,5 @@ jobs:
           service: ${{ env.SERVICE_NAME }}
           region: ${{ env.AWS_REGION }}
           image: ${{ secrets.IMAGE_URI }}
-          access-role-arn: ${{ secrets.AWS_ROLE_ARN }}
+          access-role-arn: ${{ secrets.APPRUNNER_ROLE }}
           port: ${{ env.PORT }}
