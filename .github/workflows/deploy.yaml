@@ -1,0 +1,64 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  TAG_NAME: try-app-runner-terraform
+  SERVICE_NAME: try-app-runner-terraform-service
+  AWS_REGION: ap-northeast-1
+  PORT: 8080
+
+jobs:
+  oidc:
+    name: OIDC and ECR Push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and Push Image
+        id: build-and-push
+        run: |
+          docker build -t ${{ env.TAG_NAME }} .
+          docker push ${{ secrets.IMAGE_URI }}
+  
+  deploy:
+    needs: [oidc]
+    name: Deploy to App Runner
+    steps:
+    - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+    
+    - name: Deploy to App Runner
+        id: deploy-to-app-runner
+        uses: awslabs/amazon-app-runner-deploy@main
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          region: ${{ env.AWS_REGION }}
+          image: ${{ secrets.IMAGE_URI }}
+          access-role-arn:  ${{ secrets.AWS_ROLE_ARN }}
+          port:  ${{ env.PORT }}
