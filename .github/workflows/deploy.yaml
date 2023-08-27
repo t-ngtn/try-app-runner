@@ -37,30 +37,3 @@ jobs:
         run: |
           docker build -t ${{ secrets.TAG_NAME }} .
           docker push ${{ secrets.IMAGE_URI }}
-
-  deploy:
-    needs: [oidc]
-    name: Deploy to App Runner
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - name: Configure AWS
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Deploy to App Runner
-        id: deploy-to-app-runner
-        uses: awslabs/amazon-app-runner-deploy@main
-        with:
-          service: ${{ env.SERVICE_NAME }}
-          region: ${{ env.AWS_REGION }}
-          image: ${{ secrets.IMAGE_URI }}
-          access-role-arn: ${{ secrets.APPRUNNER_ROLE }}
-          port: ${{ env.PORT }}
-          wait-for-service-stability-seconds: 600
